@@ -40,3 +40,10 @@ CompareBombsToMax:
     CMP !BOMB_CURRENT
 RTL
 ;--------------------------------------------------------------------------------
+CompareArrowsToMax:
+    LDA !ARROW_UPGRADES ; get arrow upgrades
+        !ADD.l StartingMaxArrows
+
+    CMP !ARROW_CURRENT
+RTL
+;--------------------------------------------------------------------------------

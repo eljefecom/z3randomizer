@@ -541,6 +541,14 @@ org $1EE199 ; <- F6199 - sprite_bomb_shop_entity.asm:102 (LDA $7EF370 : PHX : TA
 JSL.l CompareBombsToMax
 NOP #11
 ;--------------------------------------------------------------------------------
+org $1EF2B2 ; <- F7273 - sprite_shopkeeper.asm:669 (LDA $7EF371 : PHX : TAX)
+JSL.l CompareArrowsToMax
+NOP #11
+;--------------------------------------------------------------------------------
+org $1EF2F3 ; <- F7273 - sprite_shopkeeper.asm:715 (LDA $7EF370 : PHX : TAX)
+JSL.l CompareBombsToMax
+NOP #11
+;--------------------------------------------------------------------------------
 
 ;================================================================================
 ; Bonk Items
