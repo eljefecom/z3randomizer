@@ -26,7 +26,7 @@ org $3FFFFF ; <- 1FFFFF
 db #$00 ; expand file to 2mb
 
 org $1FFFF8 ; <- FFFF8 timestamp rom
-db #$20, #$17, #$10, #$08 ; year/month/day
+db #$20, #$17, #$10, #$23 ; year/month/day
 
 ;================================================================================
 
@@ -137,6 +137,8 @@ incsrc init.asm
 
 org $A48000 ; code bank - PUT NEW CODE HERE
 incsrc openmode.asm
+incsrc endingsequence.asm
+incsrc sramenforcement.asm
 
 ;org $228000 ; contrib area
 org $A28000 ; contrib area

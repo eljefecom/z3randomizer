@@ -37,9 +37,9 @@ ProcessMenuButtons:
 	.sel_unheld
 		LDA !HUD_FLAG : AND #$20 : BEQ +
 		LDA !HUD_FLAG : AND #$DF : STA !HUD_FLAG ; select is released, unset hud flag
-		LDA $1B : BEQ + ; skip if outdoors
-			LDA.b #$20 : STA $012F ; menu select sound
-		+
+		;LDA $1B : BEQ + ; skip if outdoors (why?, select has an effect outdoors too)
+		LDA.b #$20 : STA $012F ; menu select sound
+		;+
 		JSL.l ResetEquipment
 	+
 	.sel_held
@@ -103,6 +103,37 @@ RTL
 ;--------------------------------------------------------------------------------
 
 ;--------------------------------------------------------------------------------
+;ProcessButtonsOnEmptyMenu
+;--------------------------------------------------------------------------------
+ProcessButtonsOnEmptyMenu:
+	; assumes 8bit accumulator
+	; only Select will be tested for
+	; if a button is held down $F4 only shows it for 1 frame, use $F0
+	LDA $F0 : AND #$20 : BEQ + ; don't adjust HUD_FLAG yet
+		; select is pressed and held
+		LDA !HUD_FLAG : AND #$20 : BNE ++
+		LDA !HUD_FLAG : ORA #$20 : STA !HUD_FLAG; set that bit
+		; play the sound 
+		LDA.b #$20 : STA $012F
+		JSL.l DrawHUDDungeonItems ; ResetEquipment does too much, puts a glitched box where Y-item should be
+		BRA ++
+	+ ;select was not held down 
+        LDA !HUD_FLAG : AND #$20 : BEQ ++
+		LDA !HUD_FLAG : AND #$DF : STA !HUD_FLAG ; clear that bit
+		; play the sound 
+		LDA.b #$20 : STA $012F
+		JSL.l DrawHUDDungeonItems ; ResetEquipment does too much, puts a glitched box where Y-item should be
+	++;HUD_FLAG already as it needs to be
+	; Tell NMI to update BG3 tilemap next frame by writing to address $6800 (word) in VRAM
+	; (from RestoreNormalMenu is equipment.asm)
+	LDA.b #$01 : STA $17
+	LDA.b #$22 : STA $0116
+	;instructions we wrote over
+	LDA $F4 : AND #$10 ; test for Start
+RTL
+;--------------------------------------------------------------------------------
+
+;--------------------------------------------------------------------------------
 ;ProcessBottleMenu:
 ;--------------------------------------------------------------------------------
 ProcessBottleMenu:
@@ -120,7 +151,7 @@ ProcessBottleMenu:
 	LDA #$00 ; pretend like the controller state was 0 from the overridden load
 RTL
 	.y_not_pressed
-	LDA $F4 : AND.b #$0C ; thing we wrote over - load controller state
+	LDA $F0 : AND.b #$0C ; thing we wrote over - load controller state
 RTL
 ;--------------------------------------------------------------------------------
 

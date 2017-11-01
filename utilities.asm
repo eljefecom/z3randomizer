@@ -569,7 +569,7 @@ NameHash:
 					BRA --
 				++ ; }
 			PLY : TYX
-			STA $00, X
+                        STA $00, X : STA $7F5028, X ;$7F5020-2F is defined as scratch space
 		INY
 		BRA -
 	+ ; }

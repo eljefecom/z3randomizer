@@ -164,6 +164,18 @@ org $0EFBC6 ; <- 77BC6 - vwf.asm : 2717 (LDA.b #$1C : STA $1CE9)
 JSL.l ResetDialogPointer
 RTS
 ;--------------------------------------------------------------------------------
+org $0EED0B ; <- PC 0x76D0B - Bank0E.asm : 3276 (LDA $E924, Y : STA $1008, X)
+JSL.l EndingSequenceTableOverride
+NOP #2
+;--------------------------------------------------------------------------------
+org $0EED15 ; <- PC 0x76D15 - Bank0E.asm : 3282 (LDA $E924, Y : STA $1008, X)
+JSL.l EndingSequenceTableOverride
+NOP #2
+;--------------------------------------------------------------------------------
+org $0EED2A ; <- PC 0x76D2A - Bank0E.asm : 3295 (LDA $E924, Y : AND.w #$00FF)
+JSL.l EndingSequenceTableLookupOverride
+NOP #2
+;--------------------------------------------------------------------------------
 
 ;================================================================================
 ; Master Sword Chest Fix
@@ -455,7 +467,7 @@ JSL.l RefillMagic
 ; Early Bottle Fix
 ;--------------------------------------------------------------------------------
 org $09894C ; <- 4894C - ancilla_init.asm:1327
-JSL.l InitializeBottles 
+JSL.l InitializeBottles
 ;--------------------------------------------------------------------------------
 
 ;================================================================================
@@ -613,11 +625,38 @@ ORA.w #$4000 : STA $0084, Y
 JSL.l AddYMarker
 NOP #2
 ;--------------------------------------------------------------------------------
+org $0DF789+6 ; <- 6F789+6 (not in disassembly) - red bottle hud tile, lower right
+dw #$2413 ; (Orig: #$24E3)
+org $0DF789+6+8  ; green bottle hud tile, lower right
+dw #$3C12 ; (Orig: #$3CE3)
+org $0DF789+6+16 ; blue bottle hud tile, lower right
+dw #$2C14 ; (Orig: #$2CD2)
+org $0DF789+6+40 ; good bee hud tile, lower right
+dw #$2815 ; (Orig: #$283A)
+;--------------------------------------------------------------------------------
 ;org $0DDE9B ; <- 6DE9B equipment.asm:296 - LDA $0202 : CMP.b #$10 : BNE .notOnBottleMenu (CMP instruction)
 ;CMP.b #$FF
 ;--------------------------------------------------------------------------------
-org $0DDE9F ; <- 6DE9F equipment.asm:300 - LDA.b #$0A : STA $0200
-LDA.b #$04
+;org $0DDE9F ; <- 6DE9F equipment.asm:300 - LDA.b #$0A : STA $0200
+;LDA.b #$04
+;================================================================================
+;highly experimental 2017-10-31
+org $0DDE7E ; <- 6DE7E equipment.asm: 279 - BEQ .haveNone (shift branch up by 2 bytes)
+db $24
+;--------------------------------------------------------------------------------
+org $0DDE9E ; <- 6DE9E equipment.asm: 296 - BNE .notOnBottleMenu (shift branch up by 2 bytes) 
+db $03
+;--------------------------------------------------------------------------------
+org $0DDE9F ; <- 6DE9F equipment.asm: 300 - LDA.b #$04 : STA $0200 (modified instruction is redundant,
+            ; replace with NOP's, then shift code up 2 bytes to squeeze in new instructions so that
+            ; item menu only rises on START rather than on any of BYSTudlr)
+NOP #3
+RTS
+;LDA $F4 : AND #$10
+JSL.l ProcessButtonsOnEmptyMenu
+; end experimental 2017-10-31
+;================================================================================
+
 ;--------------------------------------------------------------------------------
 org $0DDE59 ; <- 6DE59 equipment.asm:247 - REP #$20
 JSL.l BringMenuDownEnhanced : RTS
@@ -999,7 +1038,7 @@ JSL.l DrawPendantCrystalDiagram : RTS
 ;================================================================================
 org $0DEDCC ; <- 6EDCC - equipment.asm:2043 - (LDA $040C : AND.w #$00FF : CMP.w #$00FF : BNE .inSpecificDungeon)
 JSL.l ShowDungeonItems : NOP #5
- 
+
 org $0DEE59 ; <- 6EE59 - equipment.asm:2126 - (LDA $040C : AND.w #$00FF : CMP.w #$00FF : BEQ .notInPalace)
 JSL.l ShowDungeonItems : NOP #5
 
@@ -1401,7 +1440,7 @@ NOP #4
 
 ;-- Yes, I'm sure
 org $06B495 ; <- 33495 sprite_smithy_bros.asm : 479 (JSL Sprite_ShowMessageUnconditional)
-NOP #4	
+NOP #4
 
 ;-- We'll take your sword
 org $06B4F3 ; <- 334F3 sprite_smithy_bros.asm : 556 (JSL Sprite_ShowMessageUnconditional)
@@ -1519,7 +1558,7 @@ NOP #6
 org $1ED379 ; <- F5379 - sprite_agahnim.asm:75 - JSL PrepDungeonExit
 JSL FixAgahnimFollowers
 ;================================================================================
- 
+
 ;================================================================================
 ; Randomize NPC Items
 ;--------------------------------------------------------------------------------
@@ -1819,3 +1858,26 @@ org $0298AD ; <- Bank02.asm:4495 (LDA $010E : CMP.b #$43)
 JSL.l WalkDownIntoTavern
 NOP #1
 ;================================================================================
+
+;================================================================================
+;SRAM enforcement hooks
+;to make the game reject save files created by different ROM seeds that don't
+;match the current ROM being played 
+;--------------------------------------------------------------------------------
+org $0CCCCC ; <- Bank02.asm:73 (Intro_ValidateSram: REP #$30 : STZ $00)(Located in bank 0C in Japanese version)
+JSL.l InitSramDeletedFlag
+;--------------------------------------------------------------------------------
+org $0CCD5B ; <- Bank02.asm:166 (LDY.w #$0000 : TYA)(Located in bank 0C in Japanese version)
+JSL.l SetSramDeletedFlag
+;--------------------------------------------------------------------------------
+org $0CDB71 ; <- Bank0C.asm:3665 (LDA.w #$001D : STA $02)
+JSL.l WriteRomHashToSram
+NOP
+;--------------------------------------------------------------------------------
+org $0CCCDC ; <- Bank02.asm:89 (ADD $700000, X)(Located in bank 0C in Japanese version)
+JSL.l SkipOverwriteEmptySramFile
+NOP #9
+;--------------------------------------------------------------------------------
+org $0CCCD8 ; <- Bank02.asm:84 (LDY.w #$0000 : TYA)(Located in bank 0C in Japanese version)
+JSL.l CompareRomHashToSram
+;--------------------------------------------------------------------------------

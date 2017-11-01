@@ -288,7 +288,7 @@ DrawHUDDungeonItems:
 	; Big Keys
 	LDA HUDDungeonItems : AND.w #$0002 : BNE + : BRL ++ : +
 		LDA.w #$2811 : STA $16C4 ; big key icon
-		LDA $7EF367 : AND.w #$0080 : BEQ + ; sewers
+		LDA $7EF367 : AND.w #$0040 : BEQ + ; castle (big key is always in castle)
 			LDA.w #$2826 : STA $16C6
 		+
 		LDA $7EF367 : AND.w #$0008 : BEQ + ; Agahnims Tower
@@ -335,7 +335,7 @@ DrawHUDDungeonItems:
 	; Maps
 	LDA HUDDungeonItems : AND.w #$0004 : BNE + : BRL ++ : +
 		LDA.w #$2821 : STA $1684 ; map icon
-		LDA $7EF369 : AND.w #$0080 : BEQ + ; sewers
+		LDA $7EF369 : AND.w #$0040 : BEQ + ; castle
 			LDA.w #$2826 : STA $1686
 		+
 		LDA $7EF369 : AND.w #$0008 : BEQ + ; Agahnims Tower
@@ -379,7 +379,7 @@ DrawHUDDungeonItems:
 	; Compasses
 	LDA HUDDungeonItems : AND.w #$0008 : BNE + : BRL ++ : +
 		LDA.w #$2C20 : STA $16C4 ; compass icon
-		LDA $7EF365 : AND.w #$0080 : BEQ + ; sewers
+		LDA $7EF365 : AND.w #$0040 : BEQ + ; castle
 			LDA.w #$2C26 : STA $16C6
 		+
 		LDA $7EF365 : AND.w #$0008 : BEQ + ; Agahnims Tower
