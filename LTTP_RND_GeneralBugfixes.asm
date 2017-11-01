@@ -26,7 +26,7 @@ org $3FFFFF ; <- 1FFFFF
 db #$00 ; expand file to 2mb
 
 org $1FFFF8 ; <- FFFF8 timestamp rom
-db #$20, #$17, #$10, #$23 ; year/month/day
+db #$20, #$17, #$10, #$31 ; year/month/day
 
 ;================================================================================
 

@@ -125,11 +125,11 @@ ProcessButtonsOnEmptyMenu:
 		JSL.l DrawHUDDungeonItems ; ResetEquipment does too much, puts a glitched box where Y-item should be
 	++;HUD_FLAG already as it needs to be
 	; Tell NMI to update BG3 tilemap next frame by writing to address $6800 (word) in VRAM
-	; (from RestoreNormalMenu is equipment.asm)
+	; (from RestoreNormalMenu in equipment.asm)
 	LDA.b #$01 : STA $17
 	LDA.b #$22 : STA $0116
 	;instructions we wrote over
-	LDA $F4 : AND #$10 ; test for Start
+	LDA $F0 : AND #$10 ; test for Start
 RTL
 ;--------------------------------------------------------------------------------
 
@@ -151,7 +151,7 @@ ProcessBottleMenu:
 	LDA #$00 ; pretend like the controller state was 0 from the overridden load
 RTL
 	.y_not_pressed
-	LDA $F0 : AND.b #$0C ; thing we wrote over - load controller state
+	LDA $F4 : AND.b #$0C ; thing we wrote over - load controller state
 RTL
 ;--------------------------------------------------------------------------------
 
